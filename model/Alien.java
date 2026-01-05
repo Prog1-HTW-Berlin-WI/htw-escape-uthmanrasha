@@ -1,5 +1,8 @@
 package model;
 
+/**
+ * @author Uthman Rasha
+ */
 public abstract class Alien {
 
     // Bitte serialVersionUID beibehalten, damit die Klasse bei der

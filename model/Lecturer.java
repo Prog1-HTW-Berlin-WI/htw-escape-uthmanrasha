@@ -1,5 +1,7 @@
 package model;
-
+/**
+ * @author Uthman Rasha
+ */
 import java.io.Serializable;
 
 public class Lecturer implements Serializable {
