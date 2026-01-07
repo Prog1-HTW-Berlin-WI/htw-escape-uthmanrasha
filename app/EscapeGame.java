@@ -1,13 +1,17 @@
 package app;
 /**
+ * @author Uthman Rasha
+ * @author Souri Armita
+ */
+/**
  * Zentrale Klasse des Spielablaufs.
  * Diese Klasse verwaltet das Spiel, den Helden, und den aktuellen Spielzustand.
  *
  * @author Uthman Rasha
  */
 
-import model.Hero;
 import model.HTWRoom;
+import model.Hero;
 
 public class EscapeGame {
 

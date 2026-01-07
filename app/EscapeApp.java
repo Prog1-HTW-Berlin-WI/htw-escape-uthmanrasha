@@ -1,4 +1,8 @@
 package app;
+/**
+ * @author Uthman Rasha
+ * @author Souri Armita
+ */
 
 import java.io.File;
 import java.io.FileInputStream;

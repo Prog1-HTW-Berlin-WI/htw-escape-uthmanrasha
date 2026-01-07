@@ -1,4 +1,8 @@
 package model;
+/**
+ * @author Uthman Rasha
+ * @author Souri Armita
+ */
 
 /**
  * Abstrakte Basisklasse für alle Aliens im Spiel.

@@ -1,6 +1,9 @@
-package model;
+/**
+ * @author Uthman Rasha
+ * @author Souri Armita
+ */
 
-import java.io.Serial;
+package model;
 import java.io.Serializable;
 
 /**
