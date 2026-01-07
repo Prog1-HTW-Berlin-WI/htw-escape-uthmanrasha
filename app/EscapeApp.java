@@ -1,7 +1,5 @@
 package app;
-/**
- * @author Uthman Rasha
- */
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -9,12 +7,28 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Scanner;
 
+/**
+ * Hauptklasse des Spiels.
+ * Programm wird von hier gestartet und das Hauptmenü wird dann angezeigt.
+ * Außerdem werden hier Spiele gestartet, gespeichert und geladen.
+ * @author Uthman Rasha
+ */
 public class EscapeApp {
 
+/** Datei, in der der Spielstand gespeichert wird. */
     public static final String SAVE_FILE_NAME = "save";
+
+    /** Das laufende Spiel */
     private EscapeGame game;
+
+    /** Gibt an, ob das Programm läuft */
     private boolean gameRunning = true;
 
+    /**
+     * Start des Programms.
+     * Gibt eine Begrüßung aus, und das Hauptmenü wird immer wieder angezeigt
+     * @param args Übergabe Parameter bei Programmstart
+     */
     public static void main(String[] args) {
         System.out.println("Welcome to the HTW escape");
         System.out.println("========================================\n");
@@ -28,7 +42,10 @@ public class EscapeApp {
             System.out.println("====================");
         }
     }
-
+/**
+ * Zeigt das Hauptmenü auf der Konsole an.
+ * Benutzer kann auswählen, was er machen möchte.
+ */
     private void showMainMenu() {
         System.out.println("You're in the main menu");
         System.out.println("What do you want to do next?");
@@ -38,13 +55,22 @@ public class EscapeApp {
         System.out.println("Please choose a number between 1 and 6: ");
     }
 
+    /**
+     * Liest die Eingabe des Benutzers von der Konsole ein.
+     * 
+     * @return die Eingabe des Benutzers als Text
+     */
     private String readUserInput() {
         Scanner scanner = new Scanner(System.in);
         String userInput = scanner.nextLine();
         // TBD
         return userInput;
     }
-
+/**
+ * Reagiert auf die Eingabe des Benutzers.
+ * Führt passende Aktion aus.
+ * @param input Auswahl aus dem Menü
+ */
     private void handleUserInput(String input) {
         switch (input) {
             case "1":
@@ -61,22 +87,34 @@ public class EscapeApp {
         }
     }
 
+    /**
+     * Startet ein neues Spiel und erstellt ein neues Spielobjekt.
+     */
     private void startGame() {
         this.game = new EscapeGame();
         resumeGame();
     }
 
+    /**
+     * Setzt das Spiel fort und startet den Spielablauf.
+     */
     private void resumeGame() {
         this.game.setGameRunning(true);
         this.game.run();
     }
 
+    /**
+     * Löscht den gespeicherten Spielstand.
+     */
     private void deleteGame() {
         if (new File(SAVE_FILE_NAME).delete()) {
             System.out.println("Game deleted!");
         }
     }
 
+     /**
+     * Speichert das aktuelle Spiel in einer Datei, damit es später weitergespielt werden kann.
+     */
     private void saveGame() {
         try (FileOutputStream fos = new FileOutputStream(SAVE_FILE_NAME);
              ObjectOutputStream oos = new ObjectOutputStream(fos)) {
@@ -89,6 +127,9 @@ public class EscapeApp {
         System.out.println("Game saved!");
     }
 
+    /**
+     * Lädt ein zuvor gespeichertes Spiel aus einer Datei.
+     */
     private void loadGame() {
         try (FileInputStream fis = new FileInputStream(SAVE_FILE_NAME);
              ObjectInputStream ois = new ObjectInputStream(fis)) {
@@ -99,14 +140,29 @@ public class EscapeApp {
         }
     }
 
+    /**
+     * Prüft, ob aktuell ein Spiel vorhanden ist.
+     *
+     * @return true, wenn ein Spiel existiert
+     */
     private boolean isGameRunning() {
         return game != null;
     }
 
+     /**
+     * Prüft, ob das Spiel beendet ist.
+     *
+     * @return true, wenn das Spiel zu Ende ist
+     */
     private boolean isGameFinished() {
         return game != null && game.isGameFinished();
     }
 
+    /**
+     * Prüft, ob es einen gespeicherten Spielstand gibt.
+     *
+     * @return true, wenn eine Speicherdatei existiert
+     */
     private boolean hasSavedGame() {
         return new File(SAVE_FILE_NAME).exists();
     }
