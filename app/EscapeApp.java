@@ -26,7 +26,7 @@ public class EscapeApp {
     private EscapeGame game;
 
     /** Gibt an, ob das Programm läuft */
-    private boolean gameRunning = true;
+    private static boolean gameRunning = true;
 
     /**
      * Start des Programms.
@@ -39,7 +39,7 @@ public class EscapeApp {
 
         EscapeApp app = new EscapeApp();
 
-        while (true) {
+        while (gameRunning) {
             app.showMainMenu();
             String choice = app.readUserInput();
             app.handleUserInput(choice);
@@ -54,6 +54,27 @@ public class EscapeApp {
         System.out.println("You're in the main menu");
         System.out.println("What do you want to do next?");
         System.out.println("(1) Start new game");
+
+        // (2) nur wenn Spiel gestartet wurde
+        if (isGameRunning()) {
+            System.out.println("(2) Resume game");
+        }
+
+        // (3) nur wenn Save existiert
+        if (hasSavedGame()) {
+            System.out.println("(3) Load game");
+        }
+
+        // (4) nur wenn Spiel gestartet wurde
+        if (isGameRunning()) {
+            System.out.println("(4) Save game");
+        }
+
+        // (5) nur wenn Save existiert
+        if (hasSavedGame()) {
+            System.out.println("(5) Delete saved game");
+        }
+
         System.out.println("(6) Quit");
         System.out.println("");
         System.out.println("Please choose a number between 1 and 6: ");
@@ -80,10 +101,43 @@ public class EscapeApp {
             case "1":
                 this.startGame();
                 break;
+
             case "2":
+                if (isGameRunning()) {
+                    resumeGame();
+                } else {
+                    System.out.println("Kein laufendes Spiel zum Fortsetzen vorhanden.");
+                }
+                break;
+
+            case "3":
+                if (hasSavedGame()) {
+                    loadGame();
+                    resumeGame();
+                } else {
+                    System.out.println("Kein gespeichertes Spiel vorhanden.");
+                }
+                break;
+
+            case "4":
+                if (isGameRunning()) {
+                    saveGame();
+                } else {
+                    System.out.println("Kein laufendes Spiel zum Speichern vorhanden");
+                }
+                break;
+
+            case "5":
+                if (hasSavedGame()) {
+                    deleteGame();
+                } else {
+                    System.out.println("Kein gespeichertes Spiel zum Löschen vorhanden.");
+                }
                 break;
             // ...
             case "6":
+                System.out.println("Programm wird beendet.");
+                gameRunning = false;
                 break;
             default:
                 System.out.println("Invalid input. Please choose a correct number between 1 and 6");
