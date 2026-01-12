@@ -30,6 +30,11 @@ public class EscapeGame {
     /**
      * Erstellt ein neues Spiel und legt einen neuen Helden an.
      */
+    private final Hero hero;
+    private final HTWRoom[] rooms = new HTWRoom[3];
+    private boolean gameRunning = true;
+    private boolean gameFinished = false;
+
     public EscapeGame() {
         this.hero = new Hero();
     }

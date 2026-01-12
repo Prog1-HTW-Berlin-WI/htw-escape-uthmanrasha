@@ -33,6 +33,12 @@ public class EscapeApp {
      * Gibt eine Begrüßung aus, und das Hauptmenü wird immer wieder angezeigt
      * @param args Übergabe Parameter bei Programmstart
      */
+public class EscapeApp {
+
+    public static final String SAVE_FILE_NAME = "save";
+    private EscapeGame game;
+    private boolean gameRunning = true;
+
     public static void main(String[] args) {
         System.out.println("Welcome to the HTW escape");
         System.out.println("========================================\n");
@@ -40,6 +46,7 @@ public class EscapeApp {
         EscapeApp app = new EscapeApp();
 
         while (gameRunning) {
+        while (true) {
             app.showMainMenu();
             String choice = app.readUserInput();
             app.handleUserInput(choice);
@@ -50,6 +57,7 @@ public class EscapeApp {
  * Zeigt das Hauptmenü auf der Konsole an.
  * Benutzer kann auswählen, was er machen möchte.
  */
+
     private void showMainMenu() {
         System.out.println("You're in the main menu");
         System.out.println("What do you want to do next?");
@@ -75,6 +83,14 @@ public class EscapeApp {
             System.out.println("(5) Delete saved game");
         }
 
+         if (game != null) {
+            System.out.println("(2) continue game");
+            System.out.println("(4) Save game");
+        }
+        if (hasSavedGame()) {
+            System.out.println("(3) Load game " );
+            System.out.println("(5) Delete saved game");
+        }
         System.out.println("(6) Quit");
         System.out.println("");
         System.out.println("Please choose a number between 1 and 6: ");
@@ -148,6 +164,48 @@ public class EscapeApp {
     /**
      * Startet ein neues Spiel und erstellt ein neues Spielobjekt.
      */
+
+    private void handleUserInput(String input) {
+        switch (input) {
+  case "1":
+            this.startGame();
+            break;
+
+        case "2":
+            if (game != null) {
+                this.resumeGame();
+            }
+            break;
+
+        case "3":
+            if (hasSavedGame()) {
+                this.loadGame();
+            }
+            break;
+
+        case "4":
+            if (game != null) {
+                this.saveGame();
+            }
+            break;
+
+        case "5":
+            if (hasSavedGame()) {
+                this.deleteGame();
+            }
+            break;
+
+        case "6":
+            System.out.println("Bye 👋");
+            System.exit(0);
+            break;
+
+        default:
+            System.out.println("Invalid input. Please choose a number between 1 and 6.");
+    }
+}
+
+
     private void startGame() {
         this.game = new EscapeGame();
         resumeGame();
