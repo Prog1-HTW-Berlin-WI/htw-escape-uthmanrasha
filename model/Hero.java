@@ -1,8 +1,4 @@
 package model;
-/**
- * @author Uthman Rasha
- * @author Souri Armita
- */
 import java.io.Serializable;
 import java.util.Random;
 

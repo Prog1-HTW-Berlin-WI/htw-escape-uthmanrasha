@@ -9,6 +9,8 @@ import java.io.Serializable;
  * @author Uthman Rasha
  * @author Souri Armita
  */
+import java.io.Serializable;
+
 public class HTWRoom implements Serializable {
 
     // Bitte serialVersionUID beibehalten, damit die Klasse bei der
