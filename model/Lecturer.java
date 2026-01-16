@@ -7,6 +7,7 @@ import java.io.Serializable;
  * später eine wichtige Rolle übernehmen.
  *
  * @author Uthman Rasha
+ * @author Souri Armita
  */
 public class Lecturer implements Serializable {
 

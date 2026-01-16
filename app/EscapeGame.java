@@ -1,13 +1,10 @@
 package app;
 /**
- * @author Uthman Rasha
- * @author Souri Armita
- */
-/**
  * Zentrale Klasse des Spielablaufs.
  * Diese Klasse verwaltet das Spiel, den Helden, und den aktuellen Spielzustand.
  *
  * @author Uthman Rasha
+ * @author Souri Armita
  */
 
 import model.HTWRoom;

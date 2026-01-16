@@ -11,7 +11,9 @@ import java.util.Scanner;
  * Hauptklasse des Spiels.
  * Programm wird von hier gestartet und das Hauptmenü wird dann angezeigt.
  * Außerdem werden hier Spiele gestartet, gespeichert und geladen.
+ * 
  * @author Uthman Rasha
+ * @author Souri Armita
  */
 public class EscapeApp {
 

@@ -8,12 +8,15 @@ import java.util.Random;
  * und später wieder geladen werden.
  *
  * @author Uthman Rasha
+ * @author Souri Armita
  */
 public class Hero implements Serializable {
 
     // Bitte serialVersionUID beibehalten, damit die Klasse bei der
     // Speicherung als Datei (Serialisierung) und beim Laden (Deserialisierung)
     // konsistent bleibt und Versionierungsprobleme vermieden werden.
+
+    private static final int MAX_HP = 50;
 
     /**
      * Versionsnummer für die Serialisierung.
@@ -23,7 +26,7 @@ public class Hero implements Serializable {
     private static final long serialVersionUID = 3578735620108186013L;
 
     private String name;
-    private int healthPoints = 50;
+    private int healthPoints = MAX_HP;
     private int experiencePoints = 0;
     private Lecturer[] signedExerciseLeaders = new Lecturer[5];
 

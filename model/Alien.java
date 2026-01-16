@@ -1,15 +1,11 @@
 package model;
 
 /**
- * @author Uthman Rasha
- * @author Souri Armita
- */
-
-/**
  * Abstrakte Basisklasse für alle Aliens im Spiel.
  * Von dieser Klasse erben später die verschiedenen Alien-Typen.
  *
  * @author Uthman Rasha
+ * @author Souri Armita
  */
 public abstract class Alien {
 
