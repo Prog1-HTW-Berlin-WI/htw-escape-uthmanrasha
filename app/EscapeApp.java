@@ -1,8 +1,4 @@
 package app;
-/**
- * @author Uthman Rasha
- * @author Souri Armita
- */
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -81,7 +77,7 @@ public class EscapeApp {
     }
 
     /**
-     * Liest die Eingabe des Benutzers von der Konsole ein.
+     * Liest die Eingabe des Benutzers von der Konsole ein
      * 
      * @return die Eingabe des Benutzers als Text
      */
