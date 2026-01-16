@@ -69,4 +69,5 @@ public class Lecturer implements Serializable {
    public String getName() {
        return name;
     }
+    
 }
