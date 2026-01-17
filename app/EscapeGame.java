@@ -9,11 +9,15 @@ package app;
 
 import model.HTWRoom;
 import model.Hero;
+import model.Lecturer;
 
 public class EscapeGame {
 
      /** Der Held, den der Spieler steuert */
     private final Hero hero;
+    private int currentRound = 1;
+    private final int Max_ROUNDS = 24;
+    private Lecturer lecturer = new Lecturer("Übungsleiter Müller");
 
      /** Räume, die im Spiel vorhanden sind */
     private final HTWRoom[] rooms = new HTWRoom[3];
@@ -88,4 +92,37 @@ public class EscapeGame {
     public Hero getHero() {
         return hero;
     }
+    public void exploreHTW() {
+
+    if (currentRound > MAX_ROUNDS) {
+        System.out.println("Zeit ist vorbei. Spiel verloren.");
+        return;
+    }
+
+    int zufall = (int)(Math.random() * 100);
+
+    if (zufall < 20) {
+        System.out.println("Du erkundest die HTW. Nichts passiert.");
+
+    } else if (zufall < 72) {
+        System.out.println("Ein Alien erscheint!");
+        // später Kampf
+
+    } } else {
+    System.out.println("Du triffst einen Übungsleiter: " + lecturer.getName());
+
+    if (lecturer.isReadyToSign()) {
+        hero.signExerciseLeader(lecturer);
+        lecturer.sign();
+        System.out.println("Der Laufzettel wurde unterschrieben!");
+    } else {
+        System.out.println("Der Übungsleiter hat bereits unterschrieben.");
+        // später Unterschrift
+    }
+}
+    }
+
+    currentRound++;
+    System.out.println("Runde: " + currentRound + " von 24");
+}
 }
