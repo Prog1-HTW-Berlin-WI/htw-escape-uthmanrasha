@@ -147,7 +147,15 @@ public class EscapeApp {
      * Startet ein neues Spiel und erstellt ein neues Spielobjekt.
      */
     private void startGame() {
-        this.game = new EscapeGame();
+        System.out.print("Bitte gib den Namen deines Charakters ein: ");
+        String name = readUserInput();
+        
+        while (name == null || name.trim().isEmpty()) {
+            System.out.print("Name darf nicht leer sein. Bitte erneut eingeben: ");
+            name = readUserInput();
+        }
+
+        this.game = new EscapeGame(name);
         resumeGame();
     }
 
