@@ -32,6 +32,7 @@ public class Hero implements Serializable {
 
     /**
      * Erstellt einen Hero mit Startwerten.
+     *
      * @param name Name des Spielcharakters
      */
     public Hero(String name) {
@@ -39,44 +40,54 @@ public class Hero implements Serializable {
     }
 
     /**
-     * Reduziert die Lebenspunkte um den angegebenen Wert (amount).
+     * Reduziert die Lebenspunkte um den angegebenen Wert.
+     * Die Lebenspunkte fallen nicht unter 0.
+     *
      * @param amount Schaden
      */
     public void takeDamage(int amount) {
-        this.healthPoints = this.healthPoints - amount;
+        this.healthPoints -= amount;
         if (this.healthPoints < 0) {
             this.healthPoints = 0;
         }
     }
 
     /**
-     * Regeneriert Lebenspunkte durch die Verschnaufspause (klein: +3, groß: +10, max. 50).
+     * Regeneriert Lebenspunkte durch eine Verschnaufpause.
+     * Kleine Pause: +3 HP, große Pause: +10 HP.
+     * Lebenspunkte überschreiten MAX_HP nicht.
+     *
      * @param longRest true = große Pause, false = kleine Pause
      */
     public void regenerate(boolean longRest) {
         if (longRest) {
-            this.healthPoints = this.healthPoints + 10;
+            this.healthPoints += 10;
         } else {
-            this.healthPoints = this.healthPoints + 3;
+            this.healthPoints += 3;
         }
-        if (this.healthPoints > 50) {
-            this.healthPoints = 50;
+
+        if (this.healthPoints > MAX_HP) {
+            this.healthPoints = MAX_HP;
         }
     }
 
     /**
-     * Fluchtversuch mit 42% Erfolgschance.
-     * @return true wenn Flucht gelingt, sonst false
+     * Versucht aus einer Begegnung zu fliehen.
+     * Erfolgswahrscheinlichkeit: 42%.
+     *
+     * @return true bei erfolgreicher Flucht
      */
     public boolean flee() {
         Random random = new Random();
-        int r = random.nextInt(100);
-        return r < 42;
+        return random.nextInt(100) < 42;
     }
 
     /**
-     * Greift ein feindliches Wesen an und berechnet den Schaden.
-     * @return Schaden als int
+     * Greift ein feindliches Wesen an.
+     * 13% Fehlschlag (0 Schaden),
+     * 12% kritischer Treffer (doppelter Schaden).
+     *
+     * @return berechneter Schaden
      */
     public int attack() {
         Random random = new Random();
@@ -87,15 +98,18 @@ public class Hero implements Serializable {
         }
 
         int damage = (int) (this.experiencePoints * 2.3 + 1);
-         if (r >= 13 && r < 25) {
-            damage = damage * 2;
+
+        if (r < 25) {
+            damage *= 2;
         }
 
         return damage;
     }
 
-     /**
-     * Trägt lecturer in den Laufzettel ein, wobei jeder lecturer nur einmal unterschreiben darf
+    /**
+     * Trägt einen Übungsgruppenleiter in den Laufzettel ein.
+     * Jeder Lecturer darf nur einmal unterschreiben.
+     *
      * @param lecturer Übungsgruppenleiter
      */
     public void signExerciseLeader(Lecturer lecturer) {
@@ -103,70 +117,71 @@ public class Hero implements Serializable {
             return;
         }
 
-        // schon eingetragen?
-        for (int i = 0; i < this.signedExerciseLeaders.length; i++) {
-            if (this.signedExerciseLeaders[i] == lecturer) {
+        for (Lecturer l : signedExerciseLeaders) {
+            if (l == lecturer) {
                 return;
             }
         }
 
-        // nächster freier Platz (null)
         for (int i = 0; i < signedExerciseLeaders.length; i++) {
-            if (this.signedExerciseLeaders[i] == null) {
-                this.signedExerciseLeaders[i] = lecturer;
+            if (signedExerciseLeaders[i] == null) {
+                signedExerciseLeaders[i] = lecturer;
                 break;
             }
         }
     }
-    
+
     /**
      * Gibt die aktuellen Erfahrungspunkte zurück.
-     * @return experiencePoints
+     *
+     * @return Erfahrungspunkte
      */
     public int getExperiencePoints() {
-        return this.experiencePoints;
+        return experiencePoints;
     }
 
     /**
      * Erhöht die Erfahrungspunkte.
+     *
      * @param experiencePoints zu addierende EP
      */
     public void addExperiencePoints(int experiencePoints) {
-        this.experiencePoints = this.experiencePoints + experiencePoints;
+        this.experiencePoints += experiencePoints;
     }
 
     /**
      * Prüft, ob der Held noch handlungsfähig ist.
-     * @return true wenn healthpoints > 0
+     *
+     * @return true, wenn HP > 0
      */
     public boolean isOperational() {
         return healthPoints > 0;
     }
 
     public String getName() {
-        return this.name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
+        return name;
     }
 
     public int getHealthPoints() {
-        return this.healthPoints;
+        return healthPoints;
     }
 
+    /**
+     * Setzt die Lebenspunkte unter Beachtung der Grenzen.
+     *
+     * @param healthPoints neue Lebenspunkte
+     */
     public void setHealthPoints(int healthPoints) {
-        this.healthPoints = healthPoints;
-    }
-    public void setExperiencePoints(int experiencePoints) {
-        this.experiencePoints = experiencePoints;
+        if (healthPoints < 0) {
+            this.healthPoints = 0;
+        } else if (healthPoints > MAX_HP) {
+            this.healthPoints = MAX_HP;
+        } else {
+            this.healthPoints = healthPoints;
+        }
     }
 
     public Lecturer[] getSignedExerciseLeaders() {
-        return this.signedExerciseLeaders;
+        return signedExerciseLeaders;
     }
-
-    public void setSignedExerciseLeaders(Lecturer[] signedExerciseLeaders) {
-        this.signedExerciseLeaders = signedExerciseLeaders;
-    }    
 }
