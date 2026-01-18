@@ -9,8 +9,6 @@ import java.io.Serializable;
  * @author Uthman Rasha
  * @author Souri Armita
  */
-import java.io.Serializable;
-
 public class HTWRoom implements Serializable {
 
     // Bitte serialVersionUID beibehalten, damit die Klasse bei der
@@ -29,7 +27,7 @@ public class HTWRoom implements Serializable {
     private Lecturer lecturer;
     
     /**
-    * Erstellt einen neuen Raum mit Kennung und Beschreibung)
+    * Erstellt einen neuen Raum mit Kennung und Beschreibung
     * 
     * @param identifier Eindeutige Raumbezeichnung (z.B A 210)
     * @param description Beschreibung des Raums

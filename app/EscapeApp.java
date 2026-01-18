@@ -163,9 +163,14 @@ public class EscapeApp {
      * Setzt das Spiel fort und startet den Spielablauf.
      */
     private void resumeGame() {
-        this.game.setGameRunning(true);
-        this.game.run();
+    if (game == null) {
+        System.out.println("Kein Spiel zum Fortsetzen vorhanden.");
+        return;
     }
+    
+    game.setGameRunning(true);
+    game.run();
+}
 
     /**
      * Löscht den gespeicherten Spielstand.

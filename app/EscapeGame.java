@@ -229,7 +229,7 @@ public class EscapeGame {
     }
 
     /**
-     * Zeigt den Status des Helden inkl. Laufzettel und Runde an (Aufgabe 11).
+     * Zeigt den Status des Helden inkl. Laufzettel und Runde an.
      */
     private void showHeroStatus() {
         System.out.println("\n========== HERO STATUS ==========");
