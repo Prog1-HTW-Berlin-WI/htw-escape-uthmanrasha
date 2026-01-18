@@ -76,6 +76,7 @@ public class EscapeApp {
         System.out.println("(6) Quit");
         System.out.println("");
         System.out.println("Please choose a number between 1 and 6: ");
+        System.out.println("(7) Verschnaufpause machen");
     }
 
     /**
@@ -137,6 +138,35 @@ public class EscapeApp {
                 System.out.println("Programm wird beendet.");
                 gameRunning = false;
                 break;
+            case "7":
+            System.out.println("Verschnaufpause:");
+            System.out.println("(1) Kleine Verschnaufpause (+3 HP)");
+            System.out.println("(2) Große Verschnaufpause (+10 HP, ganze Runde)");
+            System.out.println("(0) Abbrechen");
+
+            String restChoice = readUserInput();
+
+            if (restChoice.equals("1")) {
+                if (!shortRestUsedThisRound) {
+                    game.getHero().regenerate(false);
+                    shortRestUsedThisRound = true;
+                    System.out.println("Du fühlst dich etwas erholt.");
+                } else {
+                    System.out.println("Diese Runde wurde bereits eine kleine Verschnaufpause genutzt.");
+                }
+            } 
+            else if (restChoice.equals("2")) {
+                game.getHero().regenerate(true);
+                game.nextRound(); // یا currentRound++
+                shortRestUsedThisRound = false;
+                System.out.println("Du hast eine große Verschnaufpause gemacht.");
+            } 
+            else {
+                System.out.println("Verschnaufpause abgebrochen.");
+            }
+            break;
+    
+
             default:
                 System.out.println("Invalid input. Please choose a correct number between 1 and 6");
                 break;

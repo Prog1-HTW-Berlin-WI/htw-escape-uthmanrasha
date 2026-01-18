@@ -14,10 +14,18 @@ import model.Lecturer;
 public class EscapeGame {
 
      /** Der Held, den der Spieler steuert */
+    public boolean isShortRestUsedThisRound() {
+    return shortRestUsedThisRound;
+}
+
+    public void setShortRestUsedThisRound(boolean value) {
+    shortRestUsedThisRound = value;
+}
     private final Hero hero;
     private int currentRound = 1;
     private final int Max_ROUNDS = 24;
     private Lecturer lecturer = new Lecturer("Übungsleiter Müller");
+    private HTWRoom room = new HTWRoom("A210"."Ein Seminarraum im Gebäude A.",lecturer);
 
      /** Räume, die im Spiel vorhanden sind */
     private final HTWRoom[] rooms = new HTWRoom[3];
@@ -82,6 +90,7 @@ public class EscapeGame {
      */
     public void run() {
         System.out.println("The game has started. Or not?");
+        System.out.println("X - Verschnaufpause machen");
     }
 
      /**
@@ -108,12 +117,16 @@ public class EscapeGame {
         System.out.println("Ein Alien erscheint!");
         // später Kampf
 
-    } } else {
-    System.out.println("Du triffst einen Übungsleiter: " + lecturer.getName());
+    } 
+ } else {
+    System.out.println("Du befindest dich im Raum " + room.getIdentifier());
+    Lecturer l = room.getLecturer();
 
-    if (lecturer.isReadyToSign()) {
-        hero.signExerciseLeader(lecturer);
-        lecturer.sign();
+    System.out.println("Du triffst einen Übungsleiter: " + l.getName());
+
+    if (l.isReadyToSign()) {
+        hero.signExerciseLeader(l);
+        l.sign();
         System.out.println("Der Laufzettel wurde unterschrieben!");
     } else {
         System.out.println("Der Übungsleiter hat bereits unterschrieben.");
@@ -123,6 +136,7 @@ public class EscapeGame {
     }
 
     currentRound++;
+    shortRestUsedThisRound = false;
     System.out.println("Runde: " + currentRound + " von 24");
 }
 }
