@@ -17,7 +17,6 @@ import model.HostileAlien;
  */
 public class EscapeGame {
 
-<<<<<<< HEAD
      /** Der Held, den der Spieler steuert */
     public boolean isShortRestUsedThisRound() {
     return shortRestUsedThisRound;
@@ -31,10 +30,8 @@ public class EscapeGame {
     private final int Max_ROUNDS = 24;
     private Lecturer lecturer = new Lecturer("Übungsleiter Müller");
     private HTWRoom room = new HTWRoom("A210"."Ein Seminarraum im Gebäude A.",lecturer);
-=======
     /** Der Held, den der Spieler steuert */
     private final Hero hero;
->>>>>>> 9468412f06b4bf9ecac3303fe99e173c69682228
 
     /** Räume, die im Spiel vorhanden sind (später nutzbar) */
     private final HTWRoom[] rooms = new HTWRoom[3];
@@ -336,7 +333,6 @@ public class EscapeGame {
     public void setGameFinished(boolean gameFinished) {
         this.gameFinished = gameFinished;
     }
-<<<<<<< HEAD
 
     /**
      * Startet den eigentlichen Spielablauf.
@@ -394,6 +390,4 @@ public class EscapeGame {
     System.out.println("Runde: " + currentRound + " von 24");
 }
 }
-=======
 }
->>>>>>> 9468412f06b4bf9ecac3303fe99e173c69682228
