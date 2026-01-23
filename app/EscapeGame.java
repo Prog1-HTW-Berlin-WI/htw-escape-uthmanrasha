@@ -1,12 +1,13 @@
 package app;
 
+import java.io.Serializable;
 import java.util.Scanner;
 
+import model.Alien;
 import model.HTWRoom;
 import model.Hero;
-import model.Lecturer;
-import model.Alien;
 import model.HostileAlien;
+import model.Lecturer;
 
 /**
  * Zentrale Klasse des Spielablaufs.
@@ -15,21 +16,10 @@ import model.HostileAlien;
  * @author Uthman Rasha
  * @author Souri Armita
  */
-public class EscapeGame {
+public class EscapeGame implements Serializable {
 
-     /** Der Held, den der Spieler steuert */
-    public boolean isShortRestUsedThisRound() {
-    return shortRestUsedThisRound;
-}
+    private static final long serialVersionUID = 1L;
 
-    public void setShortRestUsedThisRound(boolean value) {
-    shortRestUsedThisRound = value;
-}
-    private final Hero hero;
-    private int currentRound = 1;
-    private final int Max_ROUNDS = 24;
-    private Lecturer lecturer = new Lecturer("Übungsleiter Müller");
-    private HTWRoom room = new HTWRoom("A210"."Ein Seminarraum im Gebäude A.",lecturer);
     /** Der Held, den der Spieler steuert */
     private final Hero hero;
 
@@ -42,8 +32,14 @@ public class EscapeGame {
     /** Maximale Anzahl an Runden */
     private static final int MAX_ROUNDS = 24;
 
+    /** Merker: kleine Verschnaufpause nur 1x pro Runde */
+    private boolean shortRestUsedThisRound = false;
+
     /** Beispiel-Lecturer (später durch echte Lecturer in Räumen ersetzen) */
     private Lecturer lecturer = new Lecturer("Übungsleiter Müller");
+
+    /** Beispiel-Raum (realer Raumname + Beschreibung) */
+    private HTWRoom room = new HTWRoom("A210", "Ein Seminarraum im Gebäude A. Es stehen Tische in Reihen und vorne hängt ein Beamer.");
 
     /** Gibt an, ob das Spiel aktuell läuft */
     private boolean gameRunning = true;
@@ -58,6 +54,14 @@ public class EscapeGame {
      */
     public EscapeGame(String heroName) {
         this.hero = new Hero(heroName);
+
+        // Lecturer per Setter in den Raum setzen (wie du es willst)
+        this.room.setLecturer(this.lecturer);
+
+        // Optional: Räume füllen (nur als Platzhalter, damit rooms nicht komplett leer ist)
+        this.rooms[0] = room;
+        this.rooms[1] = new HTWRoom("A001", "Ein Flur im Erdgeschoss. Man hört Schritte und Stimmen von Studierenden.");
+        this.rooms[2] = new HTWRoom("A212", "Ein weiterer Seminarraum mit Whiteboard und ein paar Postern an der Wand.");
     }
 
     /**
@@ -142,6 +146,9 @@ public class EscapeGame {
             return;
         }
 
+        // neue Runde -> kleine Pause wieder verfügbar
+        shortRestUsedThisRound = false;
+
         int zufall = (int) (Math.random() * 100);
 
         if (zufall < 20) {
@@ -152,14 +159,22 @@ public class EscapeGame {
             startAlienEncounter(alien);
 
         } else {
-            System.out.println("Du triffst einen Übungsleiter: " + lecturer.getName());
+            System.out.println("Du betrittst den Raum " + room.getIdentifier() + ".");
+            System.out.println(room.getDescription());
 
-            if (lecturer.isReadyToSign()) {
-                hero.signExerciseLeader(lecturer);
-                lecturer.sign();
-                System.out.println("Der Laufzettel wurde unterschrieben!");
+            Lecturer l = room.getLecturer();
+            if (l == null) {
+                System.out.println("Hier ist gerade kein Übungsleiter.");
             } else {
-                System.out.println("Der Übungsleiter hat bereits unterschrieben.");
+                System.out.println("Du triffst einen Übungsleiter: " + l.getName());
+
+                if (l.isReadyToSign()) {
+                    hero.signExerciseLeader(l);
+                    l.sign();
+                    System.out.println("Der Laufzettel wurde unterschrieben!");
+                } else {
+                    System.out.println("Der Übungsleiter hat bereits unterschrieben.");
+                }
             }
         }
 
@@ -221,7 +236,7 @@ public class EscapeGame {
                 break;
             }
 
-            int alienDamage = 5;
+            int alienDamage = 5; // simpel fix
             System.out.println(alien.getName() + " greift zurück und macht " + alienDamage + " Schaden.");
             hero.takeDamage(alienDamage);
             System.out.println("Deine HP: " + hero.getHealthPoints() + "/50");
@@ -235,7 +250,7 @@ public class EscapeGame {
             System.out.println("Du hast den Kampf verloren.");
             hero.addExperiencePoints(1);
             System.out.println("+1 EP erhalten. EP jetzt: " + hero.getExperiencePoints());
-            gameFinished = true; // optional: Spielende bei 0 HP
+            gameFinished = true;
         }
 
         System.out.println("--- KAMPF ENDE ---\n");
@@ -289,26 +304,39 @@ public class EscapeGame {
 
     /**
      * Verschnaufpause (klein oder groß).
+     * Klein: +3 HP, nur 1x pro Runde.
+     * Groß: +10 HP, kostet eine ganze Runde.
      */
     private void takeBreak() {
         System.out.println("\nVerschnaufpause:");
-        System.out.println("1 - Kleine Pause (+3 HP)");
-        System.out.println("2 - Große Pause (+10 HP)");
+        System.out.println("1 - Kleine Pause (+3 HP) [nur 1x pro Runde]");
+        System.out.println("2 - Große Pause (+10 HP) [kostet 1 Runde]");
         System.out.print("Deine Wahl: ");
 
         String choice = readUserInput();
+
         if (choice.equals("1")) {
+            if (shortRestUsedThisRound) {
+                System.out.println("Diese Runde wurde bereits eine kleine Verschnaufpause genutzt.");
+                return;
+            }
             hero.regenerate(false);
+            shortRestUsedThisRound = true;
             System.out.println("Du machst eine kleine Pause.");
+
         } else if (choice.equals("2")) {
             hero.regenerate(true);
             System.out.println("Du machst eine große Pause.");
             currentRound++;
+            shortRestUsedThisRound = false;
+
+            System.out.println("Runde: " + currentRound + " von " + MAX_ROUNDS);
 
             if (currentRound > MAX_ROUNDS) {
                 System.out.println("Zeit ist vorbei. Spiel verloren.");
                 gameFinished = true;
             }
+
         } else {
             System.out.println("Ungültige Eingabe. Keine Pause gemacht.");
         }
@@ -334,60 +362,11 @@ public class EscapeGame {
         this.gameFinished = gameFinished;
     }
 
-    /**
-     * Startet den eigentlichen Spielablauf.
-     * Hier läuft später die Spiellogik ab.
-     */
-    public void run() {
-        System.out.println("The game has started. Or not?");
-        System.out.println("X - Verschnaufpause machen");
+    public boolean isShortRestUsedThisRound() {
+        return shortRestUsedThisRound;
     }
 
-     /**
-     * Gibt den aktuellen Helden zurück.
-     *
-     * @return der Held des Spiels
-     */
-    public Hero getHero() {
-        return hero;
+    public void setShortRestUsedThisRound(boolean value) {
+        this.shortRestUsedThisRound = value;
     }
-    public void exploreHTW() {
-
-    if (currentRound > MAX_ROUNDS) {
-        System.out.println("Zeit ist vorbei. Spiel verloren.");
-        return;
-    }
-
-    int zufall = (int)(Math.random() * 100);
-
-    if (zufall < 20) {
-        System.out.println("Du erkundest die HTW. Nichts passiert.");
-
-    } else if (zufall < 72) {
-        System.out.println("Ein Alien erscheint!");
-        // später Kampf
-
-    } 
- } else {
-    System.out.println("Du befindest dich im Raum " + room.getIdentifier());
-    Lecturer l = room.getLecturer();
-
-    System.out.println("Du triffst einen Übungsleiter: " + l.getName());
-
-    if (l.isReadyToSign()) {
-        hero.signExerciseLeader(l);
-        l.sign();
-        System.out.println("Der Laufzettel wurde unterschrieben!");
-    } else {
-        System.out.println("Der Übungsleiter hat bereits unterschrieben.");
-        // später Unterschrift
-    }
-}
-    }
-
-    currentRound++;
-    shortRestUsedThisRound = false;
-    System.out.println("Runde: " + currentRound + " von 24");
-}
-}
 }

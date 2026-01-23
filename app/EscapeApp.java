@@ -17,7 +17,7 @@ import java.util.Scanner;
  */
 public class EscapeApp {
 
-/** Datei, in der der Spielstand gespeichert wird. */
+    /** Datei, in der der Spielstand gespeichert wird. */
     public static final String SAVE_FILE_NAME = "save";
 
     /** Das laufende Spiel */
@@ -29,6 +29,7 @@ public class EscapeApp {
     /**
      * Start des Programms.
      * Gibt eine Begrüßung aus, und das Hauptmenü wird immer wieder angezeigt
+     * 
      * @param args Übergabe Parameter bei Programmstart
      */
     public static void main(String[] args) {
@@ -44,39 +45,35 @@ public class EscapeApp {
             System.out.println("====================");
         }
     }
-/**
- * Zeigt das Hauptmenü auf der Konsole an.
- * Benutzer kann auswählen, was er machen möchte.
- */
+
+    /**
+     * Zeigt das Hauptmenü auf der Konsole an.
+     * Benutzer kann auswählen, was er machen möchte.
+     */
     private void showMainMenu() {
         System.out.println("You're in the main menu");
         System.out.println("What do you want to do next?");
         System.out.println("(1) Start new game");
 
-        // (2) nur wenn Spiel gestartet wurde
         if (isGameRunning()) {
             System.out.println("(2) Resume game");
         }
 
-        // (3) nur wenn Save existiert
         if (hasSavedGame()) {
             System.out.println("(3) Load game");
         }
 
-        // (4) nur wenn Spiel gestartet wurde
         if (isGameRunning()) {
             System.out.println("(4) Save game");
         }
 
-        // (5) nur wenn Save existiert
         if (hasSavedGame()) {
             System.out.println("(5) Delete saved game");
         }
 
         System.out.println("(6) Quit");
         System.out.println("");
-        System.out.println("Please choose a number between 1 and 6: ");
-        System.out.println("(7) Verschnaufpause machen");
+        System.out.print("Please choose a number: ");
     }
 
     /**
@@ -86,19 +83,19 @@ public class EscapeApp {
      */
     private String readUserInput() {
         Scanner scanner = new Scanner(System.in);
-        String userInput = scanner.nextLine();
-        // TBD
-        return userInput;
+        return scanner.nextLine();
     }
-/**
- * Reagiert auf die Eingabe des Benutzers.
- * Führt passende Aktion aus.
- * @param input Auswahl aus dem Menü
- */
+
+    /**
+     * Reagiert auf die Eingabe des Benutzers.
+     * Führt passende Aktion aus.
+     * 
+     * @param input Auswahl aus dem Menü
+     */
     private void handleUserInput(String input) {
         switch (input) {
             case "1":
-                this.startGame();
+                startGame();
                 break;
 
             case "2":
@@ -122,7 +119,7 @@ public class EscapeApp {
                 if (isGameRunning()) {
                     saveGame();
                 } else {
-                    System.out.println("Kein laufendes Spiel zum Speichern vorhanden");
+                    System.out.println("Kein laufendes Spiel zum Speichern vorhanden.");
                 }
                 break;
 
@@ -133,42 +130,14 @@ public class EscapeApp {
                     System.out.println("Kein gespeichertes Spiel zum Löschen vorhanden.");
                 }
                 break;
-            // ...
+
             case "6":
                 System.out.println("Programm wird beendet.");
                 gameRunning = false;
                 break;
-            case "7":
-            System.out.println("Verschnaufpause:");
-            System.out.println("(1) Kleine Verschnaufpause (+3 HP)");
-            System.out.println("(2) Große Verschnaufpause (+10 HP, ganze Runde)");
-            System.out.println("(0) Abbrechen");
-
-            String restChoice = readUserInput();
-
-            if (restChoice.equals("1")) {
-                if (!shortRestUsedThisRound) {
-                    game.getHero().regenerate(false);
-                    shortRestUsedThisRound = true;
-                    System.out.println("Du fühlst dich etwas erholt.");
-                } else {
-                    System.out.println("Diese Runde wurde bereits eine kleine Verschnaufpause genutzt.");
-                }
-            } 
-            else if (restChoice.equals("2")) {
-                game.getHero().regenerate(true);
-                game.nextRound(); // یا currentRound++
-                shortRestUsedThisRound = false;
-                System.out.println("Du hast eine große Verschnaufpause gemacht.");
-            } 
-            else {
-                System.out.println("Verschnaufpause abgebrochen.");
-            }
-            break;
-    
 
             default:
-                System.out.println("Invalid input. Please choose a correct number between 1 and 6");
+                System.out.println("Ungültige Eingabe. Bitte 1 bis 6 wählen.");
                 break;
         }
     }
@@ -179,7 +148,7 @@ public class EscapeApp {
     private void startGame() {
         System.out.print("Bitte gib den Namen deines Charakters ein: ");
         String name = readUserInput();
-        
+
         while (name == null || name.trim().isEmpty()) {
             System.out.print("Name darf nicht leer sein. Bitte erneut eingeben: ");
             name = readUserInput();
@@ -193,14 +162,14 @@ public class EscapeApp {
      * Setzt das Spiel fort und startet den Spielablauf.
      */
     private void resumeGame() {
-    if (game == null) {
-        System.out.println("Kein Spiel zum Fortsetzen vorhanden.");
-        return;
+        if (game == null) {
+            System.out.println("Kein Spiel zum Fortsetzen vorhanden.");
+            return;
+        }
+
+        game.setGameRunning(true);
+        game.run();
     }
-    
-    game.setGameRunning(true);
-    game.run();
-}
 
     /**
      * Löscht den gespeicherten Spielstand.
@@ -208,10 +177,12 @@ public class EscapeApp {
     private void deleteGame() {
         if (new File(SAVE_FILE_NAME).delete()) {
             System.out.println("Game deleted!");
+        } else {
+            System.out.println("Kein Save zum Löschen vorhanden.");
         }
     }
 
-     /**
+    /**
      * Speichert das aktuelle Spiel in einer Datei, damit es später weitergespielt werden kann.
      */
     private void saveGame() {
@@ -219,11 +190,10 @@ public class EscapeApp {
              ObjectOutputStream oos = new ObjectOutputStream(fos)) {
             oos.writeObject(game);
             oos.flush();
+            System.out.println("Game saved!");
         } catch (Exception ex) {
             System.err.println("Something went wrong while saving the game: " + ex.getMessage());
-            return;
         }
-        System.out.println("Game saved!");
     }
 
     /**
@@ -248,15 +218,6 @@ public class EscapeApp {
         return game != null;
     }
 
-     /**
-     * Prüft, ob das Spiel beendet ist.
-     *
-     * @return true, wenn das Spiel zu Ende ist
-     */
-    private boolean isGameFinished() {
-        return game != null && game.isGameFinished();
-    }
-
     /**
      * Prüft, ob es einen gespeicherten Spielstand gibt.
      *
@@ -266,4 +227,13 @@ public class EscapeApp {
         return new File(SAVE_FILE_NAME).exists();
     }
 
+    /**
+     * Prüft, ob das Spiel beendet ist.
+     *
+     * @return true, wenn das Spiel zu Ende ist
+     */
+    private boolean isGameFinished() {
+        return game != null && game.isGameFinished();
+    }
 }
+
