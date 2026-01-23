@@ -10,75 +10,76 @@ import model.HostileAlien;
 import model.Lecturer;
 
 /**
- * Zentrale Klasse des Spielablaufs.
- * Diese Klasse verwaltet das Spiel, den Helden, und den aktuellen Spielzustand.
+ * Das ist die Hauptklasse vom Spiel.
+ * Hier passiert das ganze Spiel: Menü anzeigen, erkunden, kämpfen, pausieren.
  *
  * @author Uthman Rasha
  * @author Souri Armita
  */
 public class EscapeGame implements Serializable {
 
+    /** Damit Speichern/Laden klappt. */
     private static final long serialVersionUID = 1L;
 
-    /** Der Held, den der Spieler steuert */
     private final Hero hero;
 
-    /** Räume, die im Spiel vorhanden sind (später nutzbar) */
+    /** Räume der HTW. */
     private final HTWRoom[] rooms = new HTWRoom[3];
 
-    /** Aktuelle Spielrunde */
+    /** Welche Runde gerade ist. */
     private int currentRound = 1;
 
-    /** Maximale Anzahl an Runden */
+    /** Maximale Runden pro Spiel, sonst ist verloren. */
     private static final int MAX_ROUNDS = 24;
 
-    /** Merker: kleine Verschnaufpause nur 1x pro Runde */
+    /** Merkt sich, ob die kleine Pause in dieser Runde schon benutzt wurde. */
     private boolean shortRestUsedThisRound = false;
 
-    /** Beispiel-Lecturer (später durch echte Lecturer in Räumen ersetzen) */
+    /** Beispiel-Übungsleiter. */
     private Lecturer lecturer = new Lecturer("Übungsleiter Müller");
 
-    /** Beispiel-Raum (realer Raumname + Beschreibung) */
-    private HTWRoom room = new HTWRoom("A210", "Ein Seminarraum im Gebäude A. Es stehen Tische in Reihen und vorne hängt ein Beamer.");
+    /** Beispiel-Raum mit echter HTW-Atmosphäre. */
+    private HTWRoom room = new HTWRoom(
+            "A210",
+            "Ein Seminarraum im Gebäude A. Es stehen Tische in Reihen und vorne hängt ein Beamer."
+    );
 
-    /** Gibt an, ob das Spiel aktuell läuft */
+    /** True = Spiel läuft noch. */
     private boolean gameRunning = true;
 
-    /** Gibt an, ob das Spiel beendet wurde */
+    /** True = Spiel ist beendet (gewonnen oder verloren). */
     private boolean gameFinished = false;
 
     /**
-     * Erstellt ein neues Spiel und legt einen neuen Helden an.
+     * Startet ein neues Spiel und erstellt den Helden.
+     * Außerdem werden Beispiel-Räume vorbereitet.
      *
-     * @param heroName Name des Spielcharakters
+     * @param heroName Name des Spielers
      */
     public EscapeGame(String heroName) {
         this.hero = new Hero(heroName);
-
-        // Lecturer per Setter in den Raum setzen (wie du es willst)
         this.room.setLecturer(this.lecturer);
-
-        // Optional: Räume füllen (nur als Platzhalter, damit rooms nicht komplett leer ist)
-        this.rooms[0] = room;
+        this.rooms[0] = this.room;
         this.rooms[1] = new HTWRoom("A001", "Ein Flur im Erdgeschoss. Man hört Schritte und Stimmen von Studierenden.");
         this.rooms[2] = new HTWRoom("A212", "Ein weiterer Seminarraum mit Whiteboard und ein paar Postern an der Wand.");
     }
 
     /**
-     * Startet den Spielablauf (Spielmenü).
+     * Haupt-Schleife vom Spiel.
+     * Das Menü läuft solange, bis der Spieler aufhört oder verliert.
      */
     public void run() {
-        while (gameRunning && hero.isOperational() && !gameFinished) {
-            showGameMenu();
-            String input = readUserInput();
-            handleGameMenuInput(input);
+        while (this.gameRunning && this.hero.isOperational() && !this.gameFinished) {
+            this.showGameMenu();
+            String input = this.readUserInput();
+            this.handleGameMenuInput(input);
         }
 
         System.out.println("Zurück ins Hauptmenü...");
     }
 
     /**
-     * Zeigt das Spielmenü auf der Konsole an.
+     * Zeigt das Spielmenü an.
      */
     private void showGameMenu() {
         System.out.println("\n------------------------------------");
@@ -93,9 +94,9 @@ public class EscapeGame implements Serializable {
     }
 
     /**
-     * Liest eine Eingabe des Benutzers ein.
+     * Liest eine Eingabe vom Spieler.
      *
-     * @return Eingabe als String
+     * @return die Eingabe als String
      */
     private String readUserInput() {
         Scanner scanner = new Scanner(System.in);
@@ -103,73 +104,72 @@ public class EscapeGame implements Serializable {
     }
 
     /**
-     * Verarbeitet die Auswahl aus dem Spielmenü.
+     * Macht etwas je nachdem, was der Spieler im Menü eingibt.
      *
-     * @param input Auswahl (1-5)
+     * @param input Menü-Auswahl
      */
     private void handleGameMenuInput(String input) {
         switch (input) {
             case "1":
-                exploreUniversity();
+                this.exploreUniversity();
                 break;
-
             case "2":
-                showHeroStatus();
+                this.showHeroStatus();
                 break;
-
             case "3":
-                showLaufzettel();
+                this.showLaufzettel();
                 break;
-
             case "4":
-                takeBreak();
+                this.takeBreak();
                 break;
-
             case "5":
-                gameRunning = false;
+                this.gameRunning = false;
                 break;
-
             default:
                 System.out.println("Ungültige Eingabe. Bitte 1 bis 5 wählen.");
         }
     }
 
     /**
-     * Erkunden kostet eine Runde und löst ein Zufallsereignis aus.
-     * 20%: nichts, 52%: feindliches Alien, 28%: Lecturer.
+     * Der Spieler erkundet die Hochschule.
+     * Dabei wird zufällig entschieden, was passiert:
+     * - 20%: Es passiert nichts
+     * - 52%: Ein feindliches Alien kommt
+     * - 28%: Man trifft einen Übungsleiter im Raum
+     * Danach wird die Runde +1 erhöht.
      */
     private void exploreUniversity() {
 
-        if (currentRound > MAX_ROUNDS) {
+        /** Wenn die Zeit vorbei ist -> direkt verloren. */
+        if (this.currentRound > MAX_ROUNDS) {
             System.out.println("Zeit ist vorbei. Spiel verloren.");
-            gameFinished = true;
+            this.gameFinished = true;
             return;
         }
 
-        // neue Runde -> kleine Pause wieder verfügbar
-        shortRestUsedThisRound = false;
+        /** Neue Runde -> kleine Pause wieder erlauben. */
+        this.shortRestUsedThisRound = false;
 
-        int zufall = (int) (Math.random() * 100);
+        int zufall = (int) (Math.random() * 100.0);
 
         if (zufall < 20) {
             System.out.println("Du erkundest die HTW. Nichts passiert.");
 
         } else if (zufall < 72) {
-            Alien alien = new HostileAlien();
-            startAlienEncounter(alien);
+            HostileAlien alien = new HostileAlien();
+            this.startAlienEncounter(alien);
 
         } else {
-            System.out.println("Du betrittst den Raum " + room.getIdentifier() + ".");
-            System.out.println(room.getDescription());
+            System.out.println("Du betrittst den Raum " + this.room.getIdentifier() + ".");
+            System.out.println(this.room.getDescription());
 
-            Lecturer l = room.getLecturer();
+            Lecturer l = this.room.getLecturer();
             if (l == null) {
                 System.out.println("Hier ist gerade kein Übungsleiter.");
             } else {
                 System.out.println("Du triffst einen Übungsleiter: " + l.getName());
-
                 if (l.isReadyToSign()) {
-                    hero.signExerciseLeader(l);
+                    this.hero.signExerciseLeader(l);
                     l.sign();
                     System.out.println("Der Laufzettel wurde unterschrieben!");
                 } else {
@@ -178,20 +178,25 @@ public class EscapeGame implements Serializable {
             }
         }
 
-        currentRound++;
-        System.out.println("Runde: " + currentRound + " von " + MAX_ROUNDS);
+        /** Runde erhöhen */
+        ++this.currentRound;
+        System.out.println("Runde: " + this.currentRound + " von " + MAX_ROUNDS);
 
-        if (currentRound > MAX_ROUNDS) {
+        /** Wenn nach der Aktion die Runden vorbei sind -> verloren */
+        if (this.currentRound > MAX_ROUNDS) {
             System.out.println("Zeit ist vorbei. Spiel verloren.");
-            gameFinished = true;
+            this.gameFinished = true;
         }
     }
 
     /**
      * Startet eine Begegnung mit einem feindlichen Alien.
-     * Spieler kann kämpfen oder fliehen.
+     * Der Spieler darf wählen:
+     * 1 = Kämpfen
+     * 2 = Fliehen (42% Chance)
+     * Wenn Flucht nicht klappt, muss er kämpfen.
      *
-     * @param alien feindliches Alien
+     * @param alien das feindliche Alien
      */
     private void startAlienEncounter(Alien alien) {
         System.out.println("\nBEGEGNUNG: Ein feindliches Alien erscheint!");
@@ -201,10 +206,10 @@ public class EscapeGame implements Serializable {
         System.out.println("2 - Fliehen (42% Chance)");
         System.out.print("Deine Wahl: ");
 
-        String choice = readUserInput();
+        String choice = this.readUserInput();
 
         if (choice.equals("2")) {
-            if (hero.flee()) {
+            if (this.hero.flee()) {
                 System.out.println("Du konntest erfolgreich fliehen!");
                 return;
             } else {
@@ -214,21 +219,30 @@ public class EscapeGame implements Serializable {
             System.out.println("Ungültige Eingabe. Du musst kämpfen!");
         }
 
-        fight(alien);
+        this.fight(alien);
     }
 
     /**
-     * Kampf läuft bis Alien besiegt oder Held nicht mehr handlungsfähig.
-     * Sieg: +5 EP, Niederlage: +1 EP.
-     *
-     * @param alien feindliches Alien
-     */
+    * Führt einen Kampf zwischen dem Helden und einem feindlichen Alien aus.
+    * Der Kampf läuft so lange, bis entweder:
+    * - das Alien besiegt ist oder
+    * - der Held keine Lebenspunkte mehr hat.
+    *
+    * Während des Kampfes:
+    * - Der Held greift zuerst an
+    * - Danach greift das Alien zurück
+    *
+    * Am Ende:
+    * - Sieg: +5 Erfahrungspunkte
+    * - Niederlage: +1 Erfahrungspunkt und das Spiel endet
+    *
+    * @param var1 das feindliche Alien
+    */
     private void fight(Alien alien) {
         System.out.println("\n--- KAMPF START ---");
 
-        while (!alien.isDefeated() && hero.isOperational()) {
-
-            int heroDamage = hero.attack();
+        while (!alien.isDefeated() && this.hero.isOperational()) {
+            int heroDamage = this.hero.attack();
             System.out.println("Du greifst an und machst " + heroDamage + " Schaden.");
             alien.takeDamage(heroDamage);
 
@@ -236,63 +250,64 @@ public class EscapeGame implements Serializable {
                 break;
             }
 
-            int alienDamage = 5; // simpel fix
+            int alienDamage = 5;
             System.out.println(alien.getName() + " greift zurück und macht " + alienDamage + " Schaden.");
-            hero.takeDamage(alienDamage);
-            System.out.println("Deine HP: " + hero.getHealthPoints() + "/50");
+            this.hero.takeDamage(alienDamage);
+            System.out.println("Deine HP: " + this.hero.getHealthPoints() + "/50");
         }
 
-        if (hero.isOperational()) {
+        if (this.hero.isOperational()) {
             System.out.println("Du hast das Alien besiegt!");
-            hero.addExperiencePoints(5);
-            System.out.println("+5 EP erhalten. EP jetzt: " + hero.getExperiencePoints());
+            this.hero.addExperiencePoints(5);
+            System.out.println("+5 EP erhalten. EP jetzt: " + this.hero.getExperiencePoints());
         } else {
             System.out.println("Du hast den Kampf verloren.");
-            hero.addExperiencePoints(1);
-            System.out.println("+1 EP erhalten. EP jetzt: " + hero.getExperiencePoints());
-            gameFinished = true;
+            this.hero.addExperiencePoints(1);
+            System.out.println("+1 EP erhalten. EP jetzt: " + this.hero.getExperiencePoints());
+            this.gameFinished = true;
         }
 
         System.out.println("--- KAMPF ENDE ---\n");
     }
 
     /**
-     * Zeigt den Status des Helden inkl. Laufzettel und Runde an.
+     * Zeigt den Status vom Helden
      */
     private void showHeroStatus() {
         System.out.println("\n========== HERO STATUS ==========");
-        System.out.println("Name: " + hero.getName());
-        System.out.println("Lebenspunkte: " + hero.getHealthPoints() + "/50");
-        System.out.println("Erfahrungspunkte: " + hero.getExperiencePoints());
+        System.out.println("Name: " + this.hero.getName());
+        System.out.println("Lebenspunkte: " + this.hero.getHealthPoints() + "/50");
+        System.out.println("Erfahrungspunkte: " + this.hero.getExperiencePoints());
         System.out.println("---------------------------------");
 
         System.out.println("Laufzettel:");
         int signedCount = 0;
 
-        for (Lecturer l : hero.getSignedExerciseLeaders()) {
+        for (Lecturer l : this.hero.getSignedExerciseLeaders()) {
             if (l != null) {
                 System.out.println("✔ " + l.getName());
                 signedCount++;
             }
         }
 
-        int missing = hero.getSignedExerciseLeaders().length - signedCount;
+        int missing = this.hero.getSignedExerciseLeaders().length - signedCount;
         System.out.println("Unterschriften: " + signedCount + "/5");
         System.out.println("Fehlende Unterschriften: " + missing);
         System.out.println("---------------------------------");
 
-        System.out.println("Aktuelle Runde: " + currentRound + " / " + MAX_ROUNDS);
+        System.out.println("Aktuelle Runde: " + this.currentRound + " / " + MAX_ROUNDS);
         System.out.println("=================================\n");
     }
 
     /**
-     * Zeigt nur den Laufzettel (nur Unterschriften).
+     * Zeigt nur den Laufzettel:
+     * Also nur die Übungsleiter, die schon unterschrieben haben.
      */
     private void showLaufzettel() {
         System.out.println("\n--- Laufzettel ---");
         int count = 0;
 
-        for (Lecturer l : hero.getSignedExerciseLeaders()) {
+        for (Lecturer l : this.hero.getSignedExerciseLeaders()) {
             if (l != null) {
                 System.out.println("- " + l.getName());
                 count++;
@@ -303,9 +318,11 @@ public class EscapeGame implements Serializable {
     }
 
     /**
-     * Verschnaufpause (klein oder groß).
-     * Klein: +3 HP, nur 1x pro Runde.
-     * Groß: +10 HP, kostet eine ganze Runde.
+     * Verschnaufpause-Menü:
+     * 1 = kleine Pause (+3 HP), aber nur einmal pro Runde
+     * 2 = große Pause (+10 HP), kostet eine ganze Runde (Runde +1)
+     * 
+     * Wenn die maximale Rundenzahl überschritten wird, ist das Spiel verloren.
      */
     private void takeBreak() {
         System.out.println("\nVerschnaufpause:");
@@ -313,28 +330,29 @@ public class EscapeGame implements Serializable {
         System.out.println("2 - Große Pause (+10 HP) [kostet 1 Runde]");
         System.out.print("Deine Wahl: ");
 
-        String choice = readUserInput();
+        String choice = this.readUserInput();
 
         if (choice.equals("1")) {
-            if (shortRestUsedThisRound) {
+            if (this.shortRestUsedThisRound) {
                 System.out.println("Diese Runde wurde bereits eine kleine Verschnaufpause genutzt.");
                 return;
             }
-            hero.regenerate(false);
-            shortRestUsedThisRound = true;
+
+            this.hero.regenerate(false);
+            this.shortRestUsedThisRound = true;
             System.out.println("Du machst eine kleine Pause.");
 
         } else if (choice.equals("2")) {
-            hero.regenerate(true);
+            this.hero.regenerate(true);
             System.out.println("Du machst eine große Pause.");
-            currentRound++;
-            shortRestUsedThisRound = false;
+            ++this.currentRound;
+            this.shortRestUsedThisRound = false;
 
-            System.out.println("Runde: " + currentRound + " von " + MAX_ROUNDS);
+            System.out.println("Runde: " + this.currentRound + " von " + MAX_ROUNDS);
 
-            if (currentRound > MAX_ROUNDS) {
+            if (this.currentRound > MAX_ROUNDS) {
                 System.out.println("Zeit ist vorbei. Spiel verloren.");
-                gameFinished = true;
+                this.gameFinished = true;
             }
 
         } else {
@@ -342,30 +360,65 @@ public class EscapeGame implements Serializable {
         }
     }
 
+    /**
+     * Gibt den Helden zurück.
+     *
+     * @return der Held
+     */
     public Hero getHero() {
-        return hero;
+        return this.hero;
     }
 
+    /**
+     * Gibt zurück, ob das Spiel gerade läuft.
+     *
+     * @return true wenn Spiel läuft
+     */
     public boolean isGameRunning() {
-        return gameRunning;
+        return this.gameRunning;
     }
 
-    public void setGameRunning(boolean gameRunning) {
-        this.gameRunning = gameRunning;
+    /**
+     * Setzt, ob das Spiel laufen soll oder nicht.
+     *
+     * @param value true = läuft, false = stop
+     */
+    public void setGameRunning(boolean value) {
+        this.gameRunning = value;
     }
 
+    /**
+     * Gibt zurück, ob das Spiel beendet ist.
+     *
+     * @return true wenn beendet
+     */
     public boolean isGameFinished() {
-        return gameFinished;
+        return this.gameFinished;
     }
 
-    public void setGameFinished(boolean gameFinished) {
-        this.gameFinished = gameFinished;
+    /**
+     * Setzt, ob das Spiel beendet ist.
+     *
+     * @param value true = beendet
+     */
+    public void setGameFinished(boolean value) {
+        this.gameFinished = value;
     }
 
+    /**
+     * Gibt zurück, ob die kleine Pause in dieser Runde schon benutzt wurde.
+     *
+     * @return true wenn schon benutzt
+     */
     public boolean isShortRestUsedThisRound() {
-        return shortRestUsedThisRound;
+        return this.shortRestUsedThisRound;
     }
 
+    /**
+     * Setzt, ob die kleine Pause schon benutzt wurde.
+     *
+     * @param value true/false
+     */
     public void setShortRestUsedThisRound(boolean value) {
         this.shortRestUsedThisRound = value;
     }
