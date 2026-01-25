@@ -24,7 +24,7 @@ public class EscapeGame implements Serializable {
     private final Hero hero;
 
     /** Räume der HTW. */
-    private final HTWRoom[] rooms = new HTWRoom[3];
+    private final HTWRoom[] rooms = new HTWRoom[5];
 
     /** Welche Runde gerade ist. */
     private int currentRound = 1;
@@ -58,10 +58,31 @@ public class EscapeGame implements Serializable {
      */
     public EscapeGame(String heroName) {
         this.hero = new Hero(heroName);
+
+        // Raum 1 
         this.room.setLecturer(this.lecturer);
         this.rooms[0] = this.room;
-        this.rooms[1] = new HTWRoom("A001", "Ein Flur im Erdgeschoss. Man hört Schritte und Stimmen von Studierenden.");
-        this.rooms[2] = new HTWRoom("A212", "Ein weiterer Seminarraum mit Whiteboard und ein paar Postern an der Wand.");
+
+        // Weitere Räume + Übungsleiter 
+        Lecturer lecturer2 = new Lecturer("Übungsleiterin Schneider");
+        Lecturer lecturer3 = new Lecturer("Übungsleiter Kaya");
+        Lecturer lecturer4 = new Lecturer("Übungsleiterin Nguyen");
+        Lecturer lecturer5 = new Lecturer("Übungsleiter Becker");
+
+        HTWRoom room2 = new HTWRoom("A001", "Ein Flur im Erdgeschoss. Man hört Schritte und Stimmen von Studierenden.");
+        HTWRoom room3 = new HTWRoom("A212", "Ein weiterer Seminarraum mit Whiteboard und ein paar Postern an der Wand.");
+        HTWRoom room4 = new HTWRoom("A130", "Ein Hörsaal. Die Stuhlreihen sind eng, vorne steht ein Pult und eine große Leinwand.");
+        HTWRoom room5 = new HTWRoom("A050", "Ein Laborraum. Man sieht Arbeitsplätze, Steckdosenleisten und Hinweisschilder an den Wänden.");
+
+        room2.setLecturer(lecturer2);
+        room3.setLecturer(lecturer3);
+        room4.setLecturer(lecturer4);
+        room5.setLecturer(lecturer5);
+
+        this.rooms[1] = room2;
+        this.rooms[2] = room3;
+        this.rooms[3] = room4;
+        this.rooms[4] = room5;
     }
 
     /**
@@ -140,15 +161,33 @@ public class EscapeGame implements Serializable {
      */
     private void exploreUniversity() {
 
-        /** Wenn die Zeit vorbei ist -> direkt verloren. */
+        // Wenn die Zeit vorbei ist -> direkt verloren. 
         if (this.currentRound > MAX_ROUNDS) {
             System.out.println("Zeit ist vorbei. Spiel verloren.");
             this.gameFinished = true;
             return;
         }
 
-        /** Neue Runde -> kleine Pause wieder erlauben. */
+        // Aufgabe 21: Treffen mit Majuntke nach allen Unterschriften.
+        if (this.countSignatures() >= 5) {
+            this.meetMajuntke();
+
+            ++this.currentRound;
+            System.out.println("Runde: " + this.currentRound + " von " + MAX_ROUNDS);
+
+            if (this.currentRound > MAX_ROUNDS) {
+                System.out.println("Zeit ist vorbei. Spiel verloren.");
+                this.gameFinished = true;
+            }
+            return;
+        }
+
+        // Neue Runde -> kleine Pause wieder erlauben.
         this.shortRestUsedThisRound = false;
+
+        /** Zufälligen Raum auswählen */
+        int roomIndex = (int) (Math.random() * this.rooms.length);
+        HTWRoom currentRoom = this.rooms[roomIndex];
 
         int zufall = (int) (Math.random() * 100.0);
 
@@ -160,10 +199,10 @@ public class EscapeGame implements Serializable {
             this.startAlienEncounter(alien);
 
         } else {
-            System.out.println("Du betrittst den Raum " + this.room.getIdentifier() + ".");
-            System.out.println(this.room.getDescription());
+            System.out.println("Du betrittst den Raum " + currentRoom.getIdentifier() + ".");
+            System.out.println(currentRoom.getDescription());
 
-            Lecturer l = this.room.getLecturer();
+            Lecturer l = currentRoom.getLecturer();
             if (l == null) {
                 System.out.println("Hier ist gerade kein Übungsleiter.");
             } else {
@@ -171,9 +210,10 @@ public class EscapeGame implements Serializable {
                 if (l.isReadyToSign()) {
                     this.hero.signExerciseLeader(l);
                     l.sign();
+                    currentRoom.setLecturer(null); // Lecturer soll nicht nochmal auftauchen
                     System.out.println("Der Laufzettel wurde unterschrieben!");
                 } else {
-                    System.out.println("Der Übungsleiter hat bereits unterschrieben.");
+                    System.out.println("Der Übungsleiter ist noch nicht bereit zu unterschreiben.");
                 }
             }
         }
@@ -358,6 +398,116 @@ public class EscapeGame implements Serializable {
         } else {
             System.out.println("Ungültige Eingabe. Keine Pause gemacht.");
         }
+    }
+
+    /**
+     * Zählt, wie viele Unterschriften bereits im Laufzettel stehen.
+     *
+     * @return Anzahl der unterschriebenen Übungsleiter
+     */
+    private int countSignatures() {
+        int count = 0;
+        for (Lecturer l : this.hero.getSignedExerciseLeaders()) {
+            if (l != null) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    /**
+     * Aufgabe 21: Treffen mit Professorin Majuntke.
+     * Es wird zufällig eine von drei Multiple-Choice Fragen gestellt.
+     * Bei falscher Antwort gibt es eine zweite Chance mit einer neuen zufälligen Frage.
+     * Bei zwei falschen Antworten endet das Spiel.
+     */
+    private void meetMajuntke() {
+        System.out.println("\n====================================");
+        System.out.println("Du triffst Professorin Majuntke!");
+        System.out.println("Sie stellt dir eine Multiple-Choice Frage...");
+        System.out.println("====================================");
+
+        boolean firstTryCorrect = askRandomMajuntkeQuestion();
+        if (firstTryCorrect) {
+            this.winGame();
+            return;
+        }
+
+        System.out.println("\nFalsch! Du bekommst eine zweite Chance (zweiter Prüfungszeitraum).");
+
+        boolean secondTryCorrect = askRandomMajuntkeQuestion();
+        if (secondTryCorrect) {
+            this.winGame();
+        } else {
+            System.out.println("\nLeider wieder falsch.");
+            System.out.println("Professorin Majuntke fliegt mit ihrem Raumschiff davon und sagt:");
+            System.out.println("\"Tja... dann halt im nächsten Semester!\"");
+            this.gameFinished = true;
+        }
+    }
+
+    /**
+     * Stellt zufällig eine von drei Multiple-Choice Fragen und wertet die Antwort aus.
+     *
+     * @return true, wenn die Antwort korrekt war, sonst false
+     */
+    private boolean askRandomMajuntkeQuestion() {
+        int q = (int) (Math.random() * 3); // 0,1,2
+
+        String question;
+        String a1, a2, a3, a4;
+        int correct; // 1..4
+
+        if (q == 0) {
+            question = "Welche Aussage zu '==' bei Strings in Java ist richtig?";
+            a1 = "Es vergleicht den Inhalt der Strings.";
+            a2 = "Es vergleicht die Referenzen.";
+            a3 = "Es funktioniert nur bei int.";
+            a4 = "Es wandelt Strings automatisch in Zahlen um.";
+            correct = 2;
+        } else if (q == 1) {
+            question = "Welche Schleife wird mindestens einmal ausgeführt?";
+            a1 = "for-Schleife";
+            a2 = "while-Schleife";
+            a3 = "do-while-Schleife";
+            a4 = "foreach-Schleife";
+            correct = 3;
+        } else {
+            question = "Was ist ein Konstruktor in Java?";
+            a1 = "Eine Methode, die ein Objekt initialisiert und wie die Klasse heißt.";
+            a2 = "Eine Variable, die immer final ist.";
+            a3 = "Eine Schleife, die Objekte erstellt.";
+            a4 = "Ein Interface für Klassen.";
+            correct = 1;
+        }
+
+        System.out.println("\n--- Frage ---");
+        System.out.println(question);
+        System.out.println("1) " + a1);
+        System.out.println("2) " + a2);
+        System.out.println("3) " + a3);
+        System.out.println("4) " + a4);
+        System.out.print("Deine Antwort (1-4): ");
+
+        String answer = this.readUserInput();
+        int chosen = 0;
+
+        if (answer.equals("1")) chosen = 1;
+        else if (answer.equals("2")) chosen = 2;
+        else if (answer.equals("3")) chosen = 3;
+        else if (answer.equals("4")) chosen = 4;
+
+        return chosen == correct;
+    }
+
+    /**
+     * Gewinnt das Spiel: Urkunde ausgeben und Spiel beenden.
+     */
+    private void winGame() {
+        System.out.println("\nRichtige Antwort!");
+        System.out.println("Du erhältst eine Urkunde und die Türen der HTW öffnen sich wieder.");
+        System.out.println("Du bist entkommen. Spiel gewonnen!");
+        this.gameFinished = true;
     }
 
     /**
